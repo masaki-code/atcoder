@@ -6,24 +6,24 @@ import java.io.PrintWriter;
 
 public class Main {
 
-    public static void main(String... args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        PrintWriter pw = new PrintWriter(System.out);
-        pw.println(new Main(br).execute());
-        pw.flush();
+	public static void main(String... args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		PrintWriter pw = new PrintWriter(System.out);
+		pw.println(new Main(br).execute());
+		pw.flush();
 
-    }
+	}
 
-    int a;
+	int a;
 
-    Main(BufferedReader br) throws Exception {
-        this.a = Integer.parseInt(br.readLine());
+	Main(BufferedReader br) throws Exception {
+		this.a = Integer.parseInt(br.readLine());
 
-    }
+	}
 
-    int execute() {
-        return 0;
+	int execute() {
+		return this.a;
 
-    }
+	}
 
 }
