@@ -16,4 +16,8 @@ class MainTest extends MainTestBase {
 
 	}
 
+	@Override
+	protected void executeMain() throws Exception {
+		Main.main("");
+	}
 }

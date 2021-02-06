@@ -21,9 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import net.masaki_blog.atcoder.template.Main;
-
-public class MainTestBase {
+abstract public class MainTestBase {
 
 	private static final InputStream SYSTEM_IN = System.in;
 	private static final PrintStream SYSTEM_OUT = System.out;
@@ -62,9 +60,11 @@ public class MainTestBase {
 
 	private void executeTest(List<String> input, String expected) throws Exception {
 		in.inputLines(input);
-		Main.main("");
+		this.executeMain();
 		assertThat(out.readLine(), is(expected));
 	}
+
+	abstract protected void executeMain() throws Exception;
 
 	protected List<Arguments> getDataProvider(String inputFileName, String outputFIleName) {
 		try {
