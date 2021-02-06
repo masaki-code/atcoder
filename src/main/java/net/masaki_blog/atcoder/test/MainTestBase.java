@@ -23,68 +23,82 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 abstract public class MainTestBase {
 
-	private static final InputStream SYSTEM_IN = System.in;
-	private static final PrintStream SYSTEM_OUT = System.out;
+    private static final InputStream SYSTEM_IN = System.in;
+    private static final PrintStream SYSTEM_OUT = System.out;
 
-	protected StandardPrintStream out = StandardPrintStream.has(SYSTEM_OUT);
-	protected StandardInputStream in = StandardInputStream.get();
+    protected StandardPrintStream out = StandardPrintStream.has(SYSTEM_OUT);
+    protected StandardInputStream in = StandardInputStream.get();
 
-	@BeforeEach
-	public void before() {
-		System.setIn(in);
-		System.setOut(out);
-	}
+    @BeforeEach
+    public void before() {
+        System.setIn(in);
+        System.setOut(out);
+    }
 
-	@AfterEach
-	public void after() {
-		System.setIn(SYSTEM_IN);
-		System.setOut(SYSTEM_OUT);
-	}
+    @AfterEach
+    public void after() {
+        System.setIn(SYSTEM_IN);
+        System.setOut(SYSTEM_OUT);
+    }
 
-	protected static List<String> input(Object... obj) {
-		return Stream.of(obj).map(Object::toString).collect(Collectors.toList());
-	}
+    protected static List<String> input(Object... obj) {
+        return Stream.of(obj).map(Object::toString).collect(Collectors.toList());
+    }
 
-	protected static String output(Object obj) {
-		return obj.toString();
-	}
+    protected static String output(Object obj) {
+        return obj.toString();
+    }
 
-	/**
-	 * dataProviderはサブクラスで実装（static）
-	 */
-	@ParameterizedTest
-	@MethodSource("dataProvider")
-	void test(List<String> input, String expected) throws Exception {
-		executeTest(input, expected);
-	}
+    /**
+     * dataProviderはサブクラスで実装（static）
+     */
+    @ParameterizedTest
+    @MethodSource("dataProvider")
+    void test(List<String> input, String expected) throws Exception {
+        executeTest(input, expected);
+    }
 
-	private void executeTest(List<String> input, String expected) throws Exception {
-		in.inputLines(input);
-		this.executeMain();
-		assertThat(out.readLine(), is(expected));
-	}
+    private void executeTest(List<String> input, String expected) throws Exception {
+        in.inputLines(input);
+        this.executeMain();
+        assertThat(out.readLine(), is(expected));
+    }
 
-	abstract protected void executeMain() throws Exception;
+    abstract protected void executeMain() throws Exception;
 
-	protected List<Arguments> getDataProvider(String inputFileName, String outputFIleName) {
-		try {
-			String inputFile = this.getClass().getResource(inputFileName).getPath();
-			String outputFile = this.getClass().getResource(outputFIleName).getPath();
-			List<String> inputList = Files.readAllLines(Paths.get(inputFile));
-			List<String> outputList = Files.readAllLines(Paths.get(outputFile));
+    protected List<Arguments> getDataProvider(String inputFileName, String outputFIleName) {
+        try {
+            String inputFile = this.getClass().getResource(inputFileName).getPath();
+            String outputFile = this.getClass().getResource(outputFIleName).getPath();
+            List<String> readAllInput = Files.readAllLines(Paths.get(inputFile));
+            List<String> readAllOutput = Files.readAllLines(Paths.get(outputFile));
 
-			List<Arguments> pattern = new ArrayList<>();
-			for (int i = 0; i < inputList.size(); i++) {
-				String input = inputList.get(i);
-				Object[] inputArray = input.split(",");
-				String output = outputList.get(i);
-				pattern.add(arguments(input(inputArray), output(output)));
-			}
-
-			return pattern;
-		} catch (IOException e) {
-			fail(e);
-			throw new RuntimeException(e);
-		}
-	}
+            List<Arguments> pattern = new ArrayList<>();
+            if (readAllInput.size() == readAllOutput.size()) {
+                for (int i = 0; i < readAllOutput.size(); i++) {
+                    String input = readAllInput.get(i);
+                    Object[] inputArray = input.split(",");
+                    String output = readAllOutput.get(i);
+                    pattern.add(arguments(input(inputArray), output(output)));
+                }
+            } else {
+                int i = 0;
+                for (String output : readAllOutput) {
+                    List<Object> inputList = new ArrayList<>();
+                    String input = readAllInput.get(i);
+                    i++;
+                    while (!input.startsWith("-")) {
+                        inputList.add(input);
+                        input = readAllInput.get(i);
+                        i++;
+                    }
+                    pattern.add(arguments(input(inputList.toArray()), output(output)));
+                }
+            }
+            return pattern;
+        } catch (IOException e) {
+            fail(e);
+            throw new RuntimeException(e);
+        }
+    }
 }
