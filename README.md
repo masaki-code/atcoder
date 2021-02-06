@@ -5,6 +5,15 @@ AtCoder用リポジトリ
 細かい補足などは以下に記載。  
 https://masaki-blog.net/category/atcoder
 
+# 構成
+* main  
+メイン
+
+* template  
+サンプルプログラム
+* test  
+テスト用のベースファイル
+
 
 # 実装上の制限、補足
 
