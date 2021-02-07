@@ -57,6 +57,7 @@ private int readInt(BufferedReader br) throws IOException {
 ## ソート
 バケツソート。  
 一度Listに詰めてソートの方が良いが、メモリなどが不安なので。
+
 ```
 void sort() {
     int[] bucket = new int[101];
