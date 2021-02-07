@@ -9,27 +9,22 @@ public class Main {
     public static void main(String... args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         PrintWriter pw = new PrintWriter(System.out);
-        new Main(br, pw).execute();
+        pw.println(new Main(br).execute());
         pw.flush();
 
     }
 
-    private void output(Object obj) {
-        pw.println(obj);
-    }
-
-    final PrintWriter pw;
     final int a;
 
-    Main(BufferedReader br, PrintWriter pw) throws Exception {
-        this.pw = pw;
+    Main(BufferedReader br) throws Exception {
+
         String s = br.readLine();
         this.a = Integer.parseInt(s);
 
     }
 
-    void execute() {
-        output("");
+    Object execute() {
+        return "";
     }
 
 }
