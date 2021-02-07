@@ -11,9 +11,9 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +29,8 @@ abstract public class MainTestBase {
     protected StandardPrintStream out = StandardPrintStream.has(SYSTEM_OUT);
     protected StandardInputStream in = StandardInputStream.get();
 
+    abstract protected void executeMain() throws Exception;
+
     @BeforeEach
     public void before() {
         System.setIn(in);
@@ -41,30 +43,22 @@ abstract public class MainTestBase {
         System.setOut(SYSTEM_OUT);
     }
 
-    protected static List<String> input(Object... obj) {
-        return Stream.of(obj).map(Object::toString).collect(Collectors.toList());
-    }
-
-    protected static String output(Object obj) {
-        return obj.toString();
-    }
-
     /**
      * dataProviderはサブクラスで実装（static）
      */
     @ParameterizedTest
     @MethodSource("dataProvider")
-    void test(List<String> input, String expected) throws Exception {
-        executeTest(input, expected);
+    void test(List<String> input, List<String> output) throws Exception {
+        executeTest(input, output);
     }
 
-    private void executeTest(List<String> input, String expected) throws Exception {
+    private void executeTest(List<String> input, List<String> output) throws Exception {
         in.inputLines(input);
         this.executeMain();
-        assertThat(out.readLine(), is(expected));
+        for (String expected : output) {
+            assertThat(out.readLine(), is(expected));
+        }
     }
-
-    abstract protected void executeMain() throws Exception;
 
     protected List<Arguments> getDataProvider(String inputFileName, String outputFIleName) {
         try {
@@ -72,33 +66,37 @@ abstract public class MainTestBase {
             String outputFile = this.getClass().getResource(outputFIleName).getPath();
             List<String> readAllInput = Files.readAllLines(Paths.get(inputFile));
             List<String> readAllOutput = Files.readAllLines(Paths.get(outputFile));
+            List<List<String>> dataInput = lines2data(readAllInput);
+            List<List<String>> dataOutput = lines2data(readAllOutput);
 
             List<Arguments> pattern = new ArrayList<>();
-            if (readAllInput.size() == readAllOutput.size()) {
-                for (int i = 0; i < readAllOutput.size(); i++) {
-                    String input = readAllInput.get(i);
-                    Object[] inputArray = input.split(",");
-                    String output = readAllOutput.get(i);
-                    pattern.add(arguments(input(inputArray), output(output)));
-                }
-            } else {
-                int i = 0;
-                for (String output : readAllOutput) {
-                    List<Object> inputList = new ArrayList<>();
-                    String input = readAllInput.get(i);
-                    i++;
-                    while (!input.startsWith("-")) {
-                        inputList.add(input);
-                        input = readAllInput.get(i);
-                        i++;
-                    }
-                    pattern.add(arguments(input(inputList.toArray()), output(output)));
-                }
+            for (int i = 0; i < dataInput.size(); i++) {
+                List<String> input = dataInput.get(i);
+                List<String> output = dataOutput.get(i);
+                pattern.add(arguments(input, output));
             }
             return pattern;
         } catch (IOException e) {
             fail(e);
             throw new RuntimeException(e);
         }
+    }
+
+    private List<List<String>> lines2data(List<String> readAll) {
+        if (readAll.stream().allMatch(s -> !s.startsWith("---"))) {
+            return readAll.stream().map(s -> Arrays.asList(s)).collect(Collectors.toList());
+        }
+
+        List<List<String>> data = new ArrayList<>();
+        List<String> list = new ArrayList<>();
+        for (String read : readAll) {
+            if (read.startsWith("---")) {
+                data.add(list);
+                list = new ArrayList<>();
+            } else {
+                list.add(read);
+            }
+        }
+        return data;
     }
 }
