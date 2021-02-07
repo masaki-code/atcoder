@@ -12,71 +12,24 @@ public class Main {
         PrintWriter pw = new PrintWriter(System.out);
         pw.println(new Main(br).execute());
         pw.flush();
-
     }
 
-    final int n, result;
+    final int n;
+    final int max;
+    final int[] an;
 
     Main(BufferedReader br) throws Exception {
-        this.n = Integer.parseInt(br.readLine());
-        int[] an = this.getAnAndSort(br);
-        this.result = this.getResult(an);
-    }
-
-    private int getResult(int[] an) {
-        int result = 0;
-
-        int index = -1;
-        int[] checkList = new int[n];
-
-        for (int i = 0; i < n; i++) {
-            boolean isDivisible = isDivisible(index, an[i], checkList);
-            if (!isDivisible) {
-                result++;
-
-                boolean sameLeft = 0 <= i - 1 && an[i] == an[i - 1];
-                boolean sameRight = i + 1 < n && an[i] == an[i + 1];
-
-                if (sameLeft || sameRight) {
-                    result--;
-                }
-
-                index++;
-                checkList[index] = an[i];
-            }
-        }
-
-        return result;
-
-    }
-
-    private boolean isDivisible(int index, int next, int[] checkList) {
-        for (int i = 0; i <= index; i++) {
-            if (next % checkList[i] == 0) {
-                return true;
-            }
-        }
-        return false;
-
-    }
-
-    private int[] getAnAndSort(BufferedReader br) throws IOException {
+        int n = Integer.parseInt(br.readLine());
+        int max = 0;
         int[] an = new int[n];
-
-        int[] bucket = new int[1000001];
         for (int i = 0; i < n; i++) {
-            bucket[readInt(br)]++;
+            int ai = readInt(br);
+            an[i] = ai;
+            max = max > ai ? max : ai;
         }
-
-        int index = 0;
-        for (int i = 0; i < bucket.length; i++) {
-            for (int j = 0; j < bucket[i]; j++) {
-                an[index] = i;
-                index++;
-            }
-
-        }
-        return an;
+        this.n = n;
+        this.an = an;
+        this.max = max;
     }
 
     private int readInt(BufferedReader br) throws IOException {
@@ -92,7 +45,21 @@ public class Main {
     }
 
     int execute() {
-        return result;
+        int[] bucket = new int[max + 1];
+        for (int i = 0; i < n; i++) {
+            int ai = an[i];
+            for (int j = 1; j * ai <= max; j++) {
+                bucket[j * ai]++;
+            }
+        }
 
+        int count = 0;
+        for (int i = 0; i < n; i++) {
+            if (bucket[an[i]] == 1) {
+                count++;
+            }
+        }
+
+        return count;
     }
 }
