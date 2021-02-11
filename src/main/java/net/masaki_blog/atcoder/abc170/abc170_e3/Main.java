@@ -131,20 +131,52 @@ public class Main {
             Yochien corrYoen = infant.yochien;
             Yochien nextYoen = tenenYochien;
 
+            int corrYoenBeforeRate = corrYoen.maxRate;
+            int nextYoenBeforeRate = nextYoen.maxRate;
+
             corrYoen.remove(infant);
             nextYoen.add(infant);
 
-            updateEquality();
+            int corrYoenAfterRate = corrYoen.maxRate;
+            int nextYoenAfterRate = nextYoen.maxRate;
 
+            int afterMinRate = getMin(corrYoenAfterRate, nextYoenAfterRate);
+            if (afterMinRate < equality) {
+                equality = afterMinRate;
+                return;
+            }
+
+            if (corrYoenBeforeRate == equality
+                    && corrYoenAfterRate == Yochien.NO_INFANTS_RATE) {
+                updateEquality();
+                return;
+            }
+
+            if (nextYoenBeforeRate == equality
+                    && nextYoenAfterRate != equality) {
+                updateEquality();
+                return;
+            }
+
+        }
+
+        private int getMin(int cRate, int nRate) {
+            if (cRate == Yochien.NO_INFANTS_RATE) {
+                return nRate;
+            }
+
+            return cRate < nRate ? cRate : nRate;
         }
 
         void updateEquality() {
             int equality = 1_000_000_000;
             for (Yochien yochien : yochiens) {
-                if (yochien != null) {
-                    if (yochien.maxRate != -1 && yochien.maxRate < equality) {
-                        equality = yochien.maxRate;
-                    }
+                if (yochien == null || yochien.maxRate == Yochien.NO_INFANTS_RATE) {
+                    continue;
+                }
+
+                if (yochien.maxRate < equality) {
+                    equality = yochien.maxRate;
                 }
             }
             this.equality = equality;
@@ -153,8 +185,11 @@ public class Main {
     }
 
     private static class Yochien {
+
+        static final int NO_INFANTS_RATE = -1;
+
         int index = -1;
-        int maxRate = -1;
+        int maxRate = NO_INFANTS_RATE;
         int maxInfantNumber = 0;
         Infant[] infants;
 
@@ -169,7 +204,7 @@ public class Main {
         }
 
         void remove(Infant target) {
-            int newMaxRate = -1;
+            int newMaxRate = NO_INFANTS_RATE;
             for (int i = 0; i <= index; i++) {
                 if (infants[i] == target || infants[i] == null) {
                     infants[i] = null;
