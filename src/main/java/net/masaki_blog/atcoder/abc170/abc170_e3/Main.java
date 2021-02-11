@@ -23,29 +23,12 @@ public class Main {
 
         int[] infantRates = new int[n];
         int[] infantYoens = new int[n];
+
+        Yochien[] yochiens = new Yochien[2_00_000 + 1];
         for (int i = 0; i < n; i++) {
             infantRates[i] = readInt(br);
             infantYoens[i] = readInt(br);
-        }
 
-        int[] tenenEnjis = new int[q];
-        int[] tenenYoens = new int[q];
-        for (int i = 0; i < q; i++) {
-            tenenEnjis[i] = readInt(br);
-            tenenYoens[i] = readInt(br);
-        }
-
-        int maxYochienNo = 0;
-        for (int i = 0; i < n; i++) {
-            maxYochienNo = maxYochienNo > infantYoens[i] ? maxYochienNo : infantYoens[i];
-        }
-
-        for (int i = 0; i < q; i++) {
-            maxYochienNo = maxYochienNo > tenenYoens[i] ? maxYochienNo : tenenYoens[i];
-        }
-
-        Yochien[] yochiens = new Yochien[maxYochienNo + 1];
-        for (int i = 0; i < n; i++) {
             int yochienNo = infantYoens[i];
             if (yochiens[yochienNo] == null) {
                 yochiens[yochienNo] = new Yochien();
@@ -53,13 +36,17 @@ public class Main {
             yochiens[yochienNo].maxInfantNumber++;
         }
 
+        int[] tenenEnjis = new int[q];
+        int[] tenenYoens = new int[q];
         for (int i = 0; i < q; i++) {
+            tenenEnjis[i] = readInt(br);
+            tenenYoens[i] = readInt(br);
+
             int yochienNo = tenenYoens[i];
             if (yochiens[yochienNo] == null) {
                 yochiens[yochienNo] = new Yochien();
             }
             yochiens[yochienNo].maxInfantNumber++;
-
         }
 
         for (Yochien yochien : yochiens) {
@@ -72,9 +59,7 @@ public class Main {
         for (int i = 0; i < n; i++) {
             infants[i] = new Infant();
             infants[i].rate = infantRates[i];
-        }
 
-        for (int i = 0; i < n; i++) {
             int yochienNo = infantYoens[i];
             Yochien yochien = yochiens[yochienNo];
             Infant infant = infants[i];
@@ -82,11 +67,7 @@ public class Main {
             yochien.infants[yochien.index] = infant;
             infant.yochien = yochien;
             infant.noInYochien = yochien.index;
-        }
 
-        for (int i = 0; i < n; i++) {
-            Infant infant = infants[i];
-            Yochien yochien = infant.yochien;
             if (infant.rate > yochien.maxRate) {
                 yochien.maxRate = infant.rate;
             }
