@@ -81,6 +81,7 @@ public class Main {
             yochien.index++;
             yochien.infants[yochien.index] = infant;
             infant.yochien = yochien;
+            infant.noInYochien = yochien.index;
         }
 
         for (int i = 0; i < n; i++) {
@@ -200,18 +201,20 @@ public class Main {
 
             index++;
             infants[index] = infant;
+            infant.noInYochien = index;
             infant.yochien = this;
         }
 
         void remove(Infant target) {
+            infants[target.noInYochien] = null;
+            if (target.rate != maxRate) {
+                return;
+            }
+
             int newMaxRate = NO_INFANTS_RATE;
             for (int i = 0; i <= index; i++) {
-                if (infants[i] == target || infants[i] == null) {
-                    infants[i] = null;
-                } else {
-                    if (infants[i].rate > newMaxRate) {
-                        newMaxRate = infants[i].rate;
-                    }
+                if (infants[i] != null && infants[i].rate > newMaxRate) {
+                    newMaxRate = infants[i].rate;
                 }
             }
             this.maxRate = newMaxRate;
@@ -220,6 +223,7 @@ public class Main {
 
     private static class Infant {
         int rate;
+        int noInYochien;
         Yochien yochien;
     }
 
