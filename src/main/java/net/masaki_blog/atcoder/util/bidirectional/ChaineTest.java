@@ -209,6 +209,59 @@ public class ChaineTest {
         assertThat(test.ins, is(data_4));
         test = test.prev;
         assertThat(test.ins, is(data_3));
+
+        // remove
+        chaine.removeInstance(data_2);
+
+        // test down
+        test = chaine;
+        assertThat(test.ins, is(data_3));
+        test = test.next;
+        assertThat(test.ins, is(data_4));
+
+        // test up
+        assertThat(test.ins, is(data_4));
+        test = test.prev;
+        assertThat(test.ins, is(data_3));
+
+        // remove
+        chaine.removeInstance(data_3);
+
+        // test down
+        test = chaine;
+        assertThat(test.ins, is(data_4));
+
+        // add
+        chaine.addInstance(data_3, Simple.order);
+
+        // test down
+        test = chaine;
+        assertThat(test.ins, is(data_3));
+        test = test.next;
+        assertThat(test.ins, is(data_4));
+
+        // test up
+        assertThat(test.ins, is(data_4));
+        test = test.prev;
+        assertThat(test.ins, is(data_3));
+
+        // add
+        chaine.addInstance(data_2, Simple.order);
+
+        // test down
+        test = chaine;
+        assertThat(test.ins, is(data_3));
+        test = test.next;
+        assertThat(test.ins, is(data_4));
+        test = test.next;
+        assertThat(test.ins, is(data_2));
+
+        // test up
+        assertThat(test.ins, is(data_2));
+        test = test.prev;
+        assertThat(test.ins, is(data_4));
+        test = test.prev;
+        assertThat(test.ins, is(data_3));
     }
 
     static class Simple {

@@ -45,12 +45,16 @@ class Chaine<E> {
                 if (this.prev != null) {
                     this.prev.next = this;
                 }
-                this.next.prev = this;
+                if (this.next != null) {
+                    this.next.prev = this;
+                }
             }
         } else {
             if (this.next != null) {
                 this.next.removeInstance(target);
-                this.next.prev = this;
+                if (this.next != null) {
+                    this.next.prev = this;
+                }
             }
         }
     }
