@@ -3,6 +3,9 @@ package net.masaki_blog.atcoder.util.bidirectional;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.*;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.BiPredicate;
 
 import org.junit.jupiter.api.AfterEach;
@@ -52,59 +55,30 @@ public class ChaineTest {
         chaine.addInstance(data_3, Simple.order);
 
         // test
-        Chaine<Simple> test = chaine;
-        assertThat(test.ins, is(data_3));
-        test = test.next;
-        assertThat(test.ins, is(data_1));
-        test = test.next;
-        assertThat(test.ins, is(data_2));
+        assertChaineNext(chaine, data_3, data_1, data_2);
 
         // remove
         chaine.removeInstance(data_1);
-
-        // test
-        test = chaine;
-        assertThat(test.ins, is(data_3));
-        test = test.next;
-        assertThat(test.ins, is(data_2));
+        assertChaineNext(chaine, data_3, data_2);
 
         // remove
         chaine.removeInstance(data_3);
-
-        // test
-        test = chaine;
-        assertThat(test.ins, is(data_2));
+        assertChaineNext(chaine, data_2);
 
         // remove
         chaine.removeInstance(data_3);
-
-        // test
-        test = chaine;
-        assertThat(test.ins, is(data_2));
+        assertChaineNext(chaine, data_2);
 
         // remove
         chaine.removeInstance(data_2);
-
-        // test
-        test = chaine;
-        assertThat(test.ins, is(nullValue()));
+        assertThat(chaine.ins, is(nullValue()));
 
         //add
         chaine.addInstance(data_1, Simple.order);
         chaine.addInstance(data_2, Simple.order);
         chaine.addInstance(data_3, Simple.order);
         chaine.addInstance(data_4, Simple.order);
-
-        // test
-        test = chaine;
-        assertThat(test.ins, is(data_3));
-        test = test.next;
-        assertThat(test.ins, is(data_1));
-        test = test.next;
-        assertThat(test.ins, is(data_4));
-        test = test.next;
-        assertThat(test.ins, is(data_2));
-
+        assertChaineNext(chaine, data_3, data_1, data_4, data_2);
     }
 
     @Test
@@ -121,43 +95,18 @@ public class ChaineTest {
         chaine.addInstance(data_4, Simple.order);
 
         // test
-        Chaine<Simple> test = chaine;
-        assertThat(test.ins, is(data_3));
-        test = test.next;
-        assertThat(test.ins, is(data_1));
-        test = test.next;
-        assertThat(test.ins, is(data_4));
-        test = test.next;
-        assertThat(test.ins, is(data_2));
+        assertChaineNext(chaine, data_3, data_1, data_4, data_2);
 
         // remove and add
         chaine.removeInstance(data_1);
         chaine.addInstance(data_1, Simple.order);
-
-        // test
-        test = chaine;
-        assertThat(test.ins, is(data_3));
-        test = test.next;
-        assertThat(test.ins, is(data_4));
-        test = test.next;
-        assertThat(test.ins, is(data_1));
-        test = test.next;
-        assertThat(test.ins, is(data_2));
+        assertChaineNext(chaine, data_3, data_4, data_1, data_2);
 
         // remove and change and add
         chaine.removeInstance(data_1);
         data_1.val = 10;
         chaine.addInstance(data_1, Simple.order);
-
-        // test
-        test = chaine;
-        assertThat(test.ins, is(data_3));
-        test = test.next;
-        assertThat(test.ins, is(data_4));
-        test = test.next;
-        assertThat(test.ins, is(data_2));
-        test = test.next;
-        assertThat(test.ins, is(data_1));
+        assertChaineNext(chaine, data_3, data_4, data_2, data_1);
     }
 
     @Test
@@ -174,94 +123,56 @@ public class ChaineTest {
         chaine.addInstance(data_4, Simple.order);
 
         // test down
-        Chaine<Simple> test = chaine;
-        assertThat(test.ins, is(data_3));
-        test = test.next;
-        assertThat(test.ins, is(data_1));
-        test = test.next;
-        assertThat(test.ins, is(data_4));
-        test = test.next;
-        assertThat(test.ins, is(data_2));
-
-        // test up
-        assertThat(test.ins, is(data_2));
-        test = test.prev;
-        assertThat(test.ins, is(data_4));
-        test = test.prev;
-        assertThat(test.ins, is(data_1));
-        test = test.prev;
-        assertThat(test.ins, is(data_3));
+        assertChaineNext(chaine, data_3, data_1, data_4, data_2);
+        assertChainePrev(chaine, data_3, data_1, data_4, data_2);
 
         // remove
         chaine.removeInstance(data_1);
-
-        // test down
-        test = chaine;
-        assertThat(test.ins, is(data_3));
-        test = test.next;
-        assertThat(test.ins, is(data_4));
-        test = test.next;
-        assertThat(test.ins, is(data_2));
-
-        // test up
-        assertThat(test.ins, is(data_2));
-        test = test.prev;
-        assertThat(test.ins, is(data_4));
-        test = test.prev;
-        assertThat(test.ins, is(data_3));
+        assertChaineNext(chaine, data_3, data_4, data_2);
+        assertChainePrev(chaine, data_3, data_4, data_2);
 
         // remove
         chaine.removeInstance(data_2);
-
-        // test down
-        test = chaine;
-        assertThat(test.ins, is(data_3));
-        test = test.next;
-        assertThat(test.ins, is(data_4));
-
-        // test up
-        assertThat(test.ins, is(data_4));
-        test = test.prev;
-        assertThat(test.ins, is(data_3));
+        assertChaineNext(chaine, data_3, data_4);
+        assertChainePrev(chaine, data_3, data_4);
 
         // remove
         chaine.removeInstance(data_3);
-
-        // test down
-        test = chaine;
-        assertThat(test.ins, is(data_4));
+        assertChaineNext(chaine, data_4);
+        assertChainePrev(chaine, data_4);
 
         // add
         chaine.addInstance(data_3, Simple.order);
-
-        // test down
-        test = chaine;
-        assertThat(test.ins, is(data_3));
-        test = test.next;
-        assertThat(test.ins, is(data_4));
-
-        // test up
-        assertThat(test.ins, is(data_4));
-        test = test.prev;
-        assertThat(test.ins, is(data_3));
+        assertChaineNext(chaine, data_3, data_4);
+        assertChainePrev(chaine, data_3, data_4);
 
         // add
         chaine.addInstance(data_2, Simple.order);
+        assertChaineNext(chaine, data_3, data_4, data_2);
+        assertChainePrev(chaine, data_3, data_4, data_2);
+    }
 
-        // test down
-        test = chaine;
-        assertThat(test.ins, is(data_3));
-        test = test.next;
-        assertThat(test.ins, is(data_4));
-        test = test.next;
-        assertThat(test.ins, is(data_2));
+    private void assertChaineNext(Chaine<Simple> chaine, Simple... simples) {
+        Chaine<Simple> test = chaine;
+        for (Simple simple : simples) {
+            assertThat(test.ins, is(simple));
+            test = test.next;
+        }
+    }
 
-        // test up
-        assertThat(test.ins, is(data_2));
-        test = test.prev;
-        assertThat(test.ins, is(data_4));
-        test = test.prev;
-        assertThat(test.ins, is(data_3));
+    private void assertChainePrev(Chaine<Simple> chaine, Simple... simples) {
+        Chaine<Simple> test = chaine;
+        while (test.next != null) {
+            test = test.next;
+        }
+
+        List<Simple> reverseList = Arrays.asList(simples);
+        Collections.reverse(reverseList);
+
+        for (Simple simple : reverseList) {
+            assertThat(test.ins, is(simple));
+            test = test.prev;
+        }
     }
 
     static class Simple {
