@@ -52,9 +52,6 @@ class Chaine<E> {
         } else {
             if (this.next != null) {
                 this.next.removeInstance(target);
-                if (this.next != null) {
-                    this.next.prev = this;
-                }
             }
         }
     }

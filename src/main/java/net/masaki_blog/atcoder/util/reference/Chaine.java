@@ -61,9 +61,31 @@ class Chaine<E extends ResferenceElement> {
         } else {
             if (this.next != null) {
                 this.next.removeInstance(target);
+            }
+        }
+    }
+
+    void removeInstancePrev(E target) {
+        if (this.ins == target) {
+            if (this.next == null) {
+                this.ins = null;
+                if (this.prev != null) {
+                    this.prev.next = null;
+                }
+            } else {
+                this.ins = this.next.ins;
+                this.ins.chaine = this;
+                this.next = this.next.next;
+                if (this.prev != null) {
+                    this.prev.next = this;
+                }
                 if (this.next != null) {
                     this.next.prev = this;
                 }
+            }
+        } else {
+            if (this.prev != null) {
+                this.prev.removeInstancePrev(target);
             }
         }
     }

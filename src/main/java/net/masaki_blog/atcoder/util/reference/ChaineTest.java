@@ -168,6 +168,57 @@ public class ChaineTest {
         assertChainePrev(chaine, data_3, data_4, data_2);
     }
 
+    @Test
+    void test_remove_prev() throws Exception {
+        Simple data_1 = new Simple(2);
+        Simple data_2 = new Simple(3);
+        Simple data_3 = new Simple(1);
+        Simple data_4 = new Simple(2);
+        Simple data_e = new Simple(99);
+
+        Chaine<Simple> chaineF = new Chaine<Simple>();
+        chaineF.addInstance(data_1, Simple.order);
+        chaineF.addInstance(data_2, Simple.order);
+        chaineF.addInstance(data_3, Simple.order);
+        chaineF.addInstance(data_e, Simple.order);
+
+        @SuppressWarnings("unchecked")
+        Chaine<Simple> chaineE = (Chaine<Simple>) data_e.chaine;
+
+        // test
+        assertResference(chaineF);
+        assertChaineNext(chaineF, data_3, data_1, data_2, data_e);
+        assertChainePrev(chaineE, data_3, data_1, data_2, data_e);
+
+        // remove
+        chaineE.removeInstancePrev(data_1);
+        assertResference(chaineF);
+        assertChaineNext(chaineF, data_3, data_2, data_e);
+
+        // remove
+        chaineF.removeInstancePrev(data_3);
+        assertResference(chaineF);
+        assertChaineNext(chaineF, data_2, data_e);
+
+        // remove
+        chaineF.removeInstancePrev(data_3);
+        assertResference(chaineF);
+        assertChaineNext(chaineF, data_2, data_e);
+
+        // remove
+        chaineF.removeInstancePrev(data_2);
+        assertResference(chaineF);
+        assertChaineNext(chaineF, data_e);
+
+        //add
+        chaineF.addInstance(data_1, Simple.order);
+        chaineF.addInstance(data_2, Simple.order);
+        chaineF.addInstance(data_3, Simple.order);
+        chaineF.addInstance(data_4, Simple.order);
+        assertResference(chaineF);
+        assertChaineNext(chaineF, data_3, data_1, data_4, data_2, data_e);
+    }
+
     private void assertResference(Chaine<Simple> chaine) {
         Chaine<Simple> test = null;
 
