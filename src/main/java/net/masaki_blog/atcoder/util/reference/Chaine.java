@@ -42,22 +42,7 @@ class Chaine<E extends ResferenceElement> {
 
     void removeInstance(E target) {
         if (this.ins == target) {
-            if (this.next == null) {
-                this.ins = null;
-                if (this.prev != null) {
-                    this.prev.next = null;
-                }
-            } else {
-                this.ins = this.next.ins;
-                this.ins.chaine = this;
-                this.next = this.next.next;
-                if (this.prev != null) {
-                    this.prev.next = this;
-                }
-                if (this.next != null) {
-                    this.next.prev = this;
-                }
-            }
+            this.removeSelf();
         } else {
             if (this.next != null) {
                 this.next.removeInstance(target);
@@ -67,25 +52,29 @@ class Chaine<E extends ResferenceElement> {
 
     void removeInstancePrev(E target) {
         if (this.ins == target) {
-            if (this.next == null) {
-                this.ins = null;
-                if (this.prev != null) {
-                    this.prev.next = null;
-                }
-            } else {
-                this.ins = this.next.ins;
-                this.ins.chaine = this;
-                this.next = this.next.next;
-                if (this.prev != null) {
-                    this.prev.next = this;
-                }
-                if (this.next != null) {
-                    this.next.prev = this;
-                }
-            }
+            this.removeSelf();
         } else {
             if (this.prev != null) {
                 this.prev.removeInstancePrev(target);
+            }
+        }
+    }
+
+    private void removeSelf() {
+        if (this.next == null) {
+            this.ins = null;
+            if (this.prev != null) {
+                this.prev.next = null;
+            }
+        } else {
+            this.ins = this.next.ins;
+            this.ins.chaine = this;
+            this.next = this.next.next;
+            if (this.prev != null) {
+                this.prev.next = this;
+            }
+            if (this.next != null) {
+                this.next.prev = this;
             }
         }
     }
