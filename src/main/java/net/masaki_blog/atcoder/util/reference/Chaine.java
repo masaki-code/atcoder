@@ -3,15 +3,30 @@ package net.masaki_blog.atcoder.util.reference;
 import java.util.function.BiPredicate;
 
 class ResferenceElement {
-    Chaine<? extends ResferenceElement> chaine;
+    Chaine chaine;
+
+    int val;
+
+    ResferenceElement(int val) {
+        this.val = val;
+    }
+
+    static BiPredicate<ResferenceElement, ResferenceElement> order = new BiPredicate<ResferenceElement, ResferenceElement>() {
+
+        @Override
+        public boolean test(ResferenceElement t, ResferenceElement u) {
+            return t.val <= u.val;
+        }
+    };
+
 }
 
-class Chaine<E extends ResferenceElement> {
-    E ins;
-    Chaine<E> prev;
-    Chaine<E> next;
+class Chaine {
+    ResferenceElement ins;
+    Chaine prev;
+    Chaine next;
 
-    void addInstance(E newInstance, BiPredicate<E, E> order) {
+    void addInstance(ResferenceElement newInstance, BiPredicate<ResferenceElement, ResferenceElement> order) {
         if (this.ins == null) {
             this.ins = newInstance;
             this.ins.chaine = this;
@@ -20,7 +35,7 @@ class Chaine<E extends ResferenceElement> {
 
         if (order.test(this.ins, newInstance)) {
             if (this.next == null) {
-                Chaine<E> newNext = new Chaine<E>();
+                Chaine newNext = new Chaine();
                 newNext.ins = newInstance;
                 newNext.ins.chaine = newNext;
                 this.next = newNext;
@@ -29,7 +44,7 @@ class Chaine<E extends ResferenceElement> {
             }
             this.next.prev = this;
         } else {
-            Chaine<E> newNext = new Chaine<E>();
+            Chaine newNext = new Chaine();
             newNext.ins = this.ins;
             newNext.ins.chaine = newNext;
             newNext.next = this.next;
@@ -40,7 +55,18 @@ class Chaine<E extends ResferenceElement> {
         }
     }
 
-    void removeInstance(E target) {
+    void removeBidirectional(ResferenceElement target,
+            BiPredicate<ResferenceElement, ResferenceElement> order) {
+
+        if (this.prev != null && order.test(target, this.prev.ins)) {
+            this.removeInstancePrev(this.ins);
+        }
+
+        this.removeInstance(this.ins);
+
+    }
+
+    void removeInstance(ResferenceElement target) {
         if (this.ins == target) {
             this.removeSelf();
         } else {
@@ -50,7 +76,7 @@ class Chaine<E extends ResferenceElement> {
         }
     }
 
-    void removeInstancePrev(E target) {
+    void removeInstancePrev(ResferenceElement target) {
         if (this.ins == target) {
             this.removeSelf();
         } else {
