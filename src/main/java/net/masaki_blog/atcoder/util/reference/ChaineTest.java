@@ -218,53 +218,74 @@ public class ChaineTest {
     }
 
     @Test
-    void test_remove_bidirectional() throws Exception {
-        ResferenceElement data_1 = new ResferenceElement(2);
-        ResferenceElement data_2 = new ResferenceElement(3);
-        ResferenceElement data_3 = new ResferenceElement(1);
-        ResferenceElement data_4 = new ResferenceElement(2);
+    void test_reset() throws Exception {
+        ResferenceElement data_1 = new ResferenceElement(10);
+        ResferenceElement data_2 = new ResferenceElement(20);
+        ResferenceElement data_3 = new ResferenceElement(30);
+        ResferenceElement data_4 = new ResferenceElement(40);
         ResferenceElement data_e = new ResferenceElement(99);
 
         Chaine chaineF = new Chaine();
-        chaineF.addInstance(data_1, ResferenceElement.order);
         chaineF.addInstance(data_2, ResferenceElement.order);
-        chaineF.addInstance(data_3, ResferenceElement.order);
+        chaineF.addInstance(data_1, ResferenceElement.order);
+        chaineF.addInstance(data_4, ResferenceElement.order);
         chaineF.addInstance(data_e, ResferenceElement.order);
-
-        Chaine chaineE = (Chaine) data_e.chaine;
+        chaineF.addInstance(data_3, ResferenceElement.order);
 
         // test
         assertResference(chaineF);
-        assertChaineNext(chaineF, data_3, data_1, data_2, data_e);
-        assertChainePrev(chaineE, data_3, data_1, data_2, data_e);
+        assertChaineNext(chaineF, data_1, data_2, data_3, data_4, data_e);
+        // data_1: 10, data_2: 20, data_3: 30, data_4: 40, data_e: 99
 
-        // remove
-        data_1.chaine.removeBidirectional(data_1, ResferenceElement.order);
+        // prev
+        data_3.val = 15;
+        data_3.chaine.reset(ResferenceElement.order);
         assertResference(chaineF);
-        assertChaineNext(chaineF, data_3, data_2, data_e);
+        assertChaineNext(chaineF, data_1, data_3, data_2, data_4, data_e);
+        // data_1: 10, data_3: 15, data_2: 20, data_4: 40, data_e: 99
 
-        // remove
-        chaineF.removeInstancePrev(data_3);
+        // next
+        data_2.val = 45;
+        data_2.chaine.reset(ResferenceElement.order);
         assertResference(chaineF);
-        assertChaineNext(chaineF, data_2, data_e);
+        assertChaineNext(chaineF, data_1, data_3, data_4, data_2, data_e);
+        // data_1: 10, data_3: 15, data_4: 40, data_2: 45, data_e: 99
 
-        // remove
-        chaineF.removeInstancePrev(data_3);
+        // prev to top
+        data_4.val = 5;
+        data_4.chaine.reset(ResferenceElement.order);
         assertResference(chaineF);
-        assertChaineNext(chaineF, data_2, data_e);
+        assertChaineNext(chaineF, data_4, data_1, data_3, data_2, data_e);
+        // data_4: 5, data_1: 10, data_3: 15, data_2: 45, data_e: 99
 
-        // remove
-        chaineF.removeInstancePrev(data_2);
+        // next to bottom
+        data_3.val = 100;
+        data_3.chaine.reset(ResferenceElement.order);
         assertResference(chaineF);
-        assertChaineNext(chaineF, data_e);
+        assertChaineNext(chaineF, data_4, data_1, data_2, data_e, data_3);
+        // data_4: 5, data_1: 10, data_2: 45, data_e: 99, data_3: 100
 
-        //add
-        chaineF.addInstance(data_1, ResferenceElement.order);
-        chaineF.addInstance(data_2, ResferenceElement.order);
-        chaineF.addInstance(data_3, ResferenceElement.order);
-        chaineF.addInstance(data_4, ResferenceElement.order);
+        // prev top to top
+        data_4.val = 1;
+        data_4.chaine.reset(ResferenceElement.order);
         assertResference(chaineF);
-        assertChaineNext(chaineF, data_3, data_1, data_4, data_2, data_e);
+        assertChaineNext(chaineF, data_4, data_1, data_2, data_e, data_3);
+        // data_4: 1, data_1: 10, data_2: 45, data_e: 99, data_3: 100
+
+        // next bottom to bottom
+        data_3.val = 105;
+        data_3.chaine.reset(ResferenceElement.order);
+        assertResference(chaineF);
+        assertChaineNext(chaineF, data_4, data_1, data_2, data_e, data_3);
+        // data_4: 1, data_1: 10, data_2: 45, data_e: 99, data_3: 105
+
+        // no move
+        data_2.val = 43;
+        data_2.chaine.reset(ResferenceElement.order);
+        assertResference(chaineF);
+        assertChaineNext(chaineF, data_4, data_1, data_2, data_e, data_3);
+        // data_4: 1, data_1: 10, data_2: 43, data_e: 99, data_3: 105
+
     }
 
     private void assertResference(Chaine chaine) {
@@ -287,6 +308,7 @@ public class ChaineTest {
     private void assertChaineNext(Chaine chaine, ResferenceElement... simples) {
         Chaine test = chaine;
         for (ResferenceElement simple : simples) {
+            assertThat(test.ins.val, is(simple.val));
             assertThat(test.ins, is(simple));
             test = test.next;
         }

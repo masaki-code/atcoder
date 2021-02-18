@@ -55,15 +55,27 @@ class Chaine {
         }
     }
 
-    void removeBidirectional(ResferenceElement target,
-            BiPredicate<ResferenceElement, ResferenceElement> order) {
+    void reset(BiPredicate<ResferenceElement, ResferenceElement> order) {
 
-        if (this.prev != null && order.test(target, this.prev.ins)) {
-            this.removeInstancePrev(this.ins);
+        ResferenceElement beforeIns = this.ins;
+
+        if (this.prev != null && order.test(this.ins, this.prev.ins)) {
+            this.removeSelf();
+            this.firstChain().addInstance(beforeIns, order);
         }
 
-        this.removeInstance(this.ins);
+        if (this.next != null && order.test(this.next.ins, this.ins)) {
+            this.addInstance(beforeIns, order);
+            this.removeSelf();
+        }
+    }
 
+    private Chaine firstChain() {
+        Chaine chaine = this;
+        while (chaine.prev != null) {
+            chaine = chaine.prev;
+        }
+        return chaine;
     }
 
     void removeInstance(ResferenceElement target) {
@@ -96,9 +108,6 @@ class Chaine {
             this.ins = this.next.ins;
             this.ins.chaine = this;
             this.next = this.next.next;
-            if (this.prev != null) {
-                this.prev.next = this;
-            }
             if (this.next != null) {
                 this.next.prev = this;
             }
