@@ -55,27 +55,48 @@ class Chaine {
         }
     }
 
+    void addInstancePrev(ResferenceElement newInstance, BiPredicate<ResferenceElement, ResferenceElement> order) {
+        if (this.ins == null) {
+            this.ins = newInstance;
+            this.ins.chaine = this;
+            return;
+        }
+
+        if (order.test(newInstance, this.ins)) {
+            if (this.prev == null) {
+                Chaine newNext = new Chaine();
+                newNext.ins = this.ins;
+                newNext.ins.chaine = newNext;
+                newNext.next = this.next;
+
+                this.ins = newInstance;
+                this.ins.chaine = this;
+                this.next = newNext;
+                this.next.prev = this;
+            } else {
+                this.prev.addInstancePrev(newInstance, order);
+            }
+        } else {
+            Chaine newNext = new Chaine();
+            newNext.ins = newInstance;
+            newNext.ins.chaine = newNext;
+            newNext.next = this.next;
+            this.next = newNext;
+            this.next.prev = this;
+        }
+    }
+
     void reset(BiPredicate<ResferenceElement, ResferenceElement> order) {
-
         ResferenceElement beforeIns = this.ins;
-
         if (this.prev != null && order.test(this.ins, this.prev.ins)) {
             this.removeSelf();
-            this.firstChain().addInstance(beforeIns, order);
+            this.addInstancePrev(beforeIns, order);
         }
 
         if (this.next != null && order.test(this.next.ins, this.ins)) {
             this.addInstance(beforeIns, order);
             this.removeSelf();
         }
-    }
-
-    private Chaine firstChain() {
-        Chaine chaine = this;
-        while (chaine.prev != null) {
-            chaine = chaine.prev;
-        }
-        return chaine;
     }
 
     void removeInstance(ResferenceElement target) {
