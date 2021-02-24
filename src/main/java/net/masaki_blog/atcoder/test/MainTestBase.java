@@ -11,9 +11,9 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,68 +23,80 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 abstract public class MainTestBase {
 
-	private static final InputStream SYSTEM_IN = System.in;
-	private static final PrintStream SYSTEM_OUT = System.out;
+    private static final InputStream SYSTEM_IN = System.in;
+    private static final PrintStream SYSTEM_OUT = System.out;
 
-	protected StandardPrintStream out = StandardPrintStream.has(SYSTEM_OUT);
-	protected StandardInputStream in = StandardInputStream.get();
+    protected StandardPrintStream out = StandardPrintStream.has(SYSTEM_OUT);
+    protected StandardInputStream in = StandardInputStream.get();
 
-	@BeforeEach
-	public void before() {
-		System.setIn(in);
-		System.setOut(out);
-	}
+    abstract protected void executeMain() throws Exception;
 
-	@AfterEach
-	public void after() {
-		System.setIn(SYSTEM_IN);
-		System.setOut(SYSTEM_OUT);
-	}
+    @BeforeEach
+    public void before() {
+        System.setIn(in);
+        System.setOut(out);
+    }
 
-	protected static List<String> input(Object... obj) {
-		return Stream.of(obj).map(Object::toString).collect(Collectors.toList());
-	}
+    @AfterEach
+    public void after() {
+        System.setIn(SYSTEM_IN);
+        System.setOut(SYSTEM_OUT);
+    }
 
-	protected static String output(Object obj) {
-		return obj.toString();
-	}
+    /**
+     * dataProviderはサブクラスで実装（static）
+     */
+    @ParameterizedTest
+    @MethodSource("dataProvider")
+    void test(List<String> input, List<String> output) throws Exception {
+        executeTest(input, output);
+    }
 
-	/**
-	 * dataProviderはサブクラスで実装（static）
-	 */
-	@ParameterizedTest
-	@MethodSource("dataProvider")
-	void test(List<String> input, String expected) throws Exception {
-		executeTest(input, expected);
-	}
+    private void executeTest(List<String> input, List<String> output) throws Exception {
+        in.inputLines(input);
+        this.executeMain();
+        for (String expected : output) {
+            assertThat(out.readLine(), is(expected));
+        }
+    }
 
-	private void executeTest(List<String> input, String expected) throws Exception {
-		in.inputLines(input);
-		this.executeMain();
-		assertThat(out.readLine(), is(expected));
-	}
+    protected List<Arguments> getDataProvider(String inputFileName, String outputFIleName) {
+        try {
+            String inputFile = this.getClass().getResource(inputFileName).getPath();
+            String outputFile = this.getClass().getResource(outputFIleName).getPath();
+            List<String> readAllInput = Files.readAllLines(Paths.get(inputFile));
+            List<String> readAllOutput = Files.readAllLines(Paths.get(outputFile));
+            List<List<String>> dataInput = lines2data(readAllInput);
+            List<List<String>> dataOutput = lines2data(readAllOutput);
 
-	abstract protected void executeMain() throws Exception;
+            List<Arguments> pattern = new ArrayList<>();
+            for (int i = 0; i < dataInput.size(); i++) {
+                List<String> input = dataInput.get(i);
+                List<String> output = dataOutput.get(i);
+                pattern.add(arguments(input, output));
+            }
+            return pattern;
+        } catch (IOException e) {
+            fail(e);
+            throw new RuntimeException(e);
+        }
+    }
 
-	protected List<Arguments> getDataProvider(String inputFileName, String outputFIleName) {
-		try {
-			String inputFile = this.getClass().getResource(inputFileName).getPath();
-			String outputFile = this.getClass().getResource(outputFIleName).getPath();
-			List<String> inputList = Files.readAllLines(Paths.get(inputFile));
-			List<String> outputList = Files.readAllLines(Paths.get(outputFile));
+    private List<List<String>> lines2data(List<String> readAll) {
+        if (readAll.stream().allMatch(s -> !s.startsWith("---"))) {
+            return readAll.stream().map(s -> Arrays.asList(s)).collect(Collectors.toList());
+        }
 
-			List<Arguments> pattern = new ArrayList<>();
-			for (int i = 0; i < inputList.size(); i++) {
-				String input = inputList.get(i);
-				Object[] inputArray = input.split(",");
-				String output = outputList.get(i);
-				pattern.add(arguments(input(inputArray), output(output)));
-			}
-
-			return pattern;
-		} catch (IOException e) {
-			fail(e);
-			throw new RuntimeException(e);
-		}
-	}
+        List<List<String>> data = new ArrayList<>();
+        List<String> list = new ArrayList<>();
+        for (String read : readAll) {
+            if (read.startsWith("---")) {
+                data.add(list);
+                list = new ArrayList<>();
+            } else {
+                list.add(read);
+            }
+        }
+        return data;
+    }
 }
