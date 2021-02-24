@@ -95,6 +95,24 @@ public class Main {
             if (point == null) {
                 return;
             }
+
+            Point center = pointMap.get(point.i, point.j, Point.Center);
+            if (center == null) {
+                unconfirmed.add(point);
+                pointMap.set(point);
+                pointMap.set(point.moveCenter());
+                return;
+            }
+
+            if (center.compareTo(point) < 0) {
+                return;
+            }
+
+            Point newCenter = point.moveCenter();
+            if (center.compareTo(newCenter) < 0) {
+                pointMap.set(newCenter);
+            }
+
             Point current = pointMap.get(point);
             if (current == null) {
                 unconfirmed.add(point);
@@ -113,7 +131,7 @@ public class Main {
         private final Point[][][] confirmMap;
 
         PointMap(int southMax, int eastMax) {
-            this.confirmMap = new Point[southMax][eastMax][4];
+            this.confirmMap = new Point[southMax][eastMax][5];
         }
 
         private Point get(Point point) {
@@ -183,10 +201,11 @@ public class Main {
             }
         }
 
-        private static final char East = 0;
-        private static final char West = 1;
-        private static final char South = 2;
-        private static final char North = 3;
+        private static final char Center = 0;
+        private static final char East = 1;
+        private static final char West = 2;
+        private static final char South = 3;
+        private static final char North = 4;
 
         int i; // 北からi番目
         int j; // 西からj番目
@@ -266,6 +285,17 @@ public class Main {
                 point.costInteger += costDecimal > 0 ? 1 : 0;
                 point.costDecimal = 1;
             }
+            return point;
+        }
+
+        Point moveCenter() {
+            Point point = new Point();
+            point.i = this.i;
+            point.j = this.j;
+            point.direction = Center;
+            point.costInteger = this.costInteger;
+            point.costInteger += this.costDecimal > 0 ? 1 : 0;
+            point.costDecimal = 0;
             return point;
         }
     }
