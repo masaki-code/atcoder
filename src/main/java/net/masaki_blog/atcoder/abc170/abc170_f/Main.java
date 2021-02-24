@@ -86,22 +86,12 @@ public class Main {
             confirmMap[i - 1][j - 1] = point;
         }
 
-        boolean isConfirmed(int i, int j) {
-            Point point = get(i, j);
-            if (point == null) {
-                return false;
-            }
-            return point.confirmed;
-        }
-
-        public void setUnconfirmed(Point point) {
-            point.confirmed = false;
+        void setUnconfirmed(Point point) {
             unconfirmedSet.add(point);
             set(point);
         }
 
         void setConfirmed(Point point) {
-            point.confirmed = true;
             unconfirmedSet.remove(point);
             set(point);
         }
@@ -122,26 +112,19 @@ public class Main {
             confirm.setConfirmed(point);
         }
 
-        boolean isConfirmed(int i, int j) {
-            if (!global.isInErea(i, j)) {
-                return true;
-            }
-            return confirm.isConfirmed(i, j);
-        }
-
         void newUnconfirmed(Point confirmed) {
             int i = confirmed.i;
             int j = confirmed.j;
-            if (!isConfirmed(i + 1, j)) {
+            if (global.isInErea(i + 1, j)) {
                 setUnconfirmed(i + 1, j, confirmed.goSouth());
             }
-            if (!isConfirmed(i - 1, j)) {
+            if (global.isInErea(i - 1, j)) {
                 setUnconfirmed(i - 1, j, confirmed.goNorth());
             }
-            if (!isConfirmed(i, j + 1)) {
+            if (global.isInErea(i, j + 1)) {
                 setUnconfirmed(i, j + 1, confirmed.goEast());
             }
-            if (!isConfirmed(i, j - 1)) {
+            if (global.isInErea(i, j - 1)) {
                 setUnconfirmed(i, j - 1, confirmed.goWest());
             }
         }
@@ -224,8 +207,6 @@ public class Main {
 
         private int costInteger;
         private int costDecimal;
-
-        private boolean confirmed;
 
         Point goEast() {
             return go(East);
