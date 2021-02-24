@@ -34,8 +34,8 @@ public class Main {
         Point point = firstPoint;
         while (true) {
             manager.comfirm(point);
-            manager.newUnconfirmed(point);
-            point = manager.getMinUnconfirmed();
+            manager.addNewPoint(point);
+            point = manager.getNext();
             if (point == null
                     || (point.i == endI && point.j == endJ)) {
                 break;
@@ -54,65 +54,27 @@ public class Main {
     }
 
     static Global global;
-    static ConfirmedManager manager;
+    static Manager manager;
 
-    private static class Lotus {
-        static boolean[][] lotus;
+    private static class Manager {
+        private final PointMap pointMap;
+        private final PriorityQueue<Point> unconfirmed;
 
-        static boolean get(int i, int j) {
-            return lotus[i - 1][j - 1];
-        }
-    }
-
-    private static class Confirm {
-
-        private final Point[][] confirmMap;
-        private final PriorityQueue<Point> unconfirmedSet;
-
-        Confirm(int iMax, int jMax) {
-            this.confirmMap = new Point[iMax][jMax];
-            this.unconfirmedSet = new PriorityQueue<>();
+        Manager(int southMax, int eastMax) {
+            this.pointMap = new PointMap(southMax, eastMax);
+            this.unconfirmed = new PriorityQueue<>();
         }
 
-        Point get(int i, int j) {
-            return confirmMap[i - 1][j - 1];
+        public Point getNext() {
+            return unconfirmed.peek();
         }
 
-        void set(Point point) {
-            set(point.i, point.j, point);
+        public void comfirm(Point point) {
+            unconfirmed.remove(point);
+            pointMap.set(point);
         }
 
-        void set(int i, int j, Point point) {
-            confirmMap[i - 1][j - 1] = point;
-        }
-
-        void setUnconfirmed(Point point) {
-            unconfirmedSet.add(point);
-            set(point);
-        }
-
-        void setConfirmed(Point point) {
-            unconfirmedSet.remove(point);
-            set(point);
-        }
-
-        Point getFirst() {
-            return unconfirmedSet.peek();
-        }
-    }
-
-    private static class ConfirmedManager {
-        private final Confirm confirm;
-
-        ConfirmedManager(int southMax, int eastMax) {
-            confirm = new Confirm(southMax, eastMax);
-        }
-
-        void comfirm(Point point) {
-            confirm.setConfirmed(point);
-        }
-
-        void newUnconfirmed(Point confirmed) {
+        public void addNewPoint(Point confirmed) {
             int i = confirmed.i;
             int j = confirmed.j;
             if (global.isInErea(i + 1, j)) {
@@ -129,25 +91,45 @@ public class Main {
             }
         }
 
-        void setUnconfirmed(int i, int j, Point point) {
+        private void setUnconfirmed(int i, int j, Point point) {
             if (point == null) {
                 return;
             }
-            Point current = confirm.get(i, j);
+            Point current = pointMap.get(point);
             if (current == null) {
-                confirm.setUnconfirmed(point);
+                unconfirmed.add(point);
+                pointMap.set(point);
             } else {
                 if (point.compareTo(current) < 0) {
-                    confirm.setUnconfirmed(point);
-                }
-                if (point.compareTo(current) == 0) {
-                    current.setDirection(point.direction);
+                    unconfirmed.remove(current);
+                    unconfirmed.add(point);
+                    pointMap.set(point);
                 }
             }
         }
+    }
 
-        Point getMinUnconfirmed() {
-            return confirm.getFirst();
+    private static class PointMap {
+        private final Point[][][] confirmMap;
+
+        PointMap(int southMax, int eastMax) {
+            this.confirmMap = new Point[southMax][eastMax][4];
+        }
+
+        private Point get(Point point) {
+            return get(point.i, point.j, point.direction);
+        }
+
+        private Point get(int i, int j, char d) {
+            return confirmMap[i - 1][j - 1][d];
+        }
+
+        private void set(Point point) {
+            set(point.i, point.j, point.direction, point);
+        }
+
+        private void set(int i, int j, char d, Point point) {
+            confirmMap[i - 1][j - 1][d] = point;
         }
     }
 
@@ -164,7 +146,7 @@ public class Main {
 
         static void init(Input input) {
             Main.global = new Global(input);
-            Main.manager = new ConfirmedManager(global.southMax, global.eastMax);
+            Main.manager = new Manager(global.southMax, global.eastMax);
         }
 
         boolean isInErea(int i, int j) {
@@ -175,6 +157,14 @@ public class Main {
                 return false;
             }
             return true;
+        }
+    }
+
+    private static class Lotus {
+        static boolean[][] lotus;
+
+        static boolean get(int i, int j) {
+            return lotus[i - 1][j - 1];
         }
     }
 
@@ -193,17 +183,15 @@ public class Main {
             }
         }
 
-        private static final char East = 'E';
-        private static final char West = 'W';
-        private static final char South = 'S';
-        private static final char North = 'N';
+        private static final char East = 0;
+        private static final char West = 1;
+        private static final char South = 2;
+        private static final char North = 3;
 
         int i; // 北からi番目
         int j; // 西からj番目
 
         char direction;
-
-        private boolean east, west, south, north;
 
         private int costInteger;
         private int costDecimal;
@@ -257,7 +245,7 @@ public class Main {
             Point point = new Point();
             point.i = newI;
             point.j = newJ;
-            point.setDirection(direction);
+            point.direction = direction;
 
             if (global.swimLen == 1) {
                 point.costInteger = costInteger + 1;
@@ -265,7 +253,7 @@ public class Main {
                 return point;
             }
 
-            if (sameDirection(direction)) {
+            if (this.direction == direction) {
                 if (costDecimal + 1 == global.swimLen) {
                     point.costInteger = costInteger + 1;
                     point.costDecimal = 0;
@@ -279,33 +267,6 @@ public class Main {
                 point.costDecimal = 1;
             }
             return point;
-        }
-
-        void setDirection(char direction) {
-            this.direction = direction;
-
-            if (direction == East) {
-                this.east = true;
-            }
-            if (direction == West) {
-                this.west = true;
-            }
-            if (direction == South) {
-                this.south = true;
-            }
-            if (direction == North) {
-                this.north = true;
-            }
-        }
-
-        private boolean sameDirection(char direction) {
-            if ((direction == East && east) ||
-                    (direction == West && west) ||
-                    (direction == South && south) ||
-                    (direction == North && north)) {
-                return true;
-            }
-            return false;
         }
     }
 
