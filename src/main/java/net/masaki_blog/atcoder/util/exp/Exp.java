@@ -1,30 +1,34 @@
 package net.masaki_blog.atcoder.util.exp;
 
-import net.masaki_blog.atcoder.util.mod.Mod;
-
 public class Exp {
-    private final int tei;
-    private final int max;
-    private final long[] val;
 
-    private Mod m;
+    private final long law;
 
-    Exp(int tei, int max, long mod) {
-        this.tei = tei;
-        this.max = max;
-        this.m = new Mod(mod);
-        this.val = new long[max + 1];
-        init();
-    }
+    private final long[] list;
 
-    private void init() {
-        val[0] = 1;
-        for (int i = 1; i <= max; i++) {
-            val[i] = m.times(val[i - 1], tei);
-        }
+    Exp(int tei, int max, long law) {
+        this.law = law;
+        this.list = list(tei, max);
     }
 
     long get(int i) {
-        return val[i];
+        return list[i];
+    }
+
+    private long[] list(int tei, int max) {
+        long[] list = new long[max + 1];
+        list[0] = 1;
+        for (int i = 1; i <= max; i++) {
+            list[i] = times(list[i - 1], tei);
+        }
+        return list;
+    }
+
+    private long times(long a, long b) {
+        long val = a * b;
+        if (val >= law) {
+            val = val % law;
+        }
+        return val;
     }
 }
