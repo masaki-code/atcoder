@@ -4,15 +4,14 @@ import java.util.List;
 
 import org.junit.jupiter.params.provider.Arguments;
 
-import net.masaki_blog.atcoder.test.MainTestBase;
+import net.masaki_blog.atcoder.test.MainTestBaseV2;
 
-class MainTest extends MainTestBase {
+class MainTest extends MainTestBaseV2 {
 
-    private static final String INPUT_FILE = "input.txt";
-    private static final String OUTPUT_FILE = "output.txt";
+    private static final String TEST_DATA_FILE = "test_data.txt";
 
     static List<Arguments> dataProvider() {
-        return new MainTest().getDataProvider(INPUT_FILE, OUTPUT_FILE);
+        return new MainTest().getDataProvider(TEST_DATA_FILE);
 
     }
 

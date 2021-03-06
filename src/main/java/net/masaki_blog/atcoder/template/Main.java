@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
-@SuppressWarnings("unused")
 public class Main {
 
     public static void main(String... args) throws Exception {
@@ -22,34 +21,21 @@ public class Main {
 
     void execute() throws Exception {
         Input input = new Input(br);
-        input.readXXXX();
-        input.readYYYY();
+        int a = input.a;
+        pw.println(a);
         pw.flush();
     }
 
     private static class Input {
 
-        final int n, q;
+        @SuppressWarnings("unused")
         final BufferedReader br;
+
+        final int a;
 
         Input(BufferedReader br) throws IOException {
             this.br = br;
-            this.n = readInt(br);
-            this.q = readInt(br);
-        }
-
-        void readXXXX() throws IOException {
-            for (int i = 0; i < n; i++) {
-                int a = readInt(br);
-                int b = readInt(br);
-            }
-        }
-
-        void readYYYY() throws IOException {
-            for (int i = 0; i < q; i++) {
-                int a = readInt(br);
-                int b = readInt(br);
-            }
+            this.a = readInt(br);
         }
 
         int readInt(BufferedReader br) throws IOException {
