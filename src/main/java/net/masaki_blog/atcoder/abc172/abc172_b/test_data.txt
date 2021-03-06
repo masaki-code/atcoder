@@ -1,0 +1,15 @@
+cupofcoffee
+cupofhottea
+---
+4
+---
+abcde
+bcdea
+---
+5
+---
+apple
+apple
+---
+0
+---
