@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 public class Main {
 
@@ -27,90 +28,76 @@ public class Main {
 
     Main execute() throws Exception {
         Input input = new Input(br);
-        int k = input.K;
-        An an = new An(input.AN, k);
-        An bm = new An(input.BM, k);
-        if (an.get(0) > k && bm.get(0) > k) {
-            pw.println(0);
-            return this;
-        }
-        if (an.maxValue() + bm.maxValue() <= k) {
-            pw.println(an.max + bm.max);
-            return this;
-        }
-        if (an.max == 0 || bm.max == 0) {
-            pw.println(an.max + bm.max);
-            return this;
-        }
-
-        int max = 0;
-        int bStart = 1;
-        for (int i = an.max; i >= 0; i--) {
-            long ai = an.get(i);
-            for (int j = bStart; j <= bm.max; j++) {
-                long bj = bm.get(j);
-                if (ai + bj > k) {
-                    bStart = j - 1;
-                    int count = i + j - 1;
-                    max = max > count ? max : count;
-                    break;
-                }
-            }
-        }
-
-        pw.println(max);
+        Counts counts = new Counts(input.an, input.bm, input.K);
+        pw.println(counts.max());
         return this;
     }
 
+    private static class Counts {
+        final int[] counts;
+
+        int max() {
+            int max = 0;
+            for (int count : counts) {
+                max = max > count ? max : count;
+            }
+            return max;
+        }
+
+        Counts(An an, An bm, int k) {
+            int[] counts = new int[an.sum.length];
+            for (int i = 0; i < an.sum.length; i++) {
+                int count = 0;
+                for (int j = bm.sum.length - 1; j >= 0; j--) {
+                    if (an.sum[i] + bm.sum[j] <= k) {
+                        count = i + j;
+                        break;
+                    }
+                }
+                counts[i] = count;
+            }
+            this.counts = counts;
+        }
+    }
+
     private static class An {
+
         final long[] sum;
-        final int max;
 
-        long get(int i) {
-            return sum[i];
-        }
-
-        long maxValue() {
-            return this.sum[max];
-        }
-
-        An(int[] an, int k) {
-            int n = an.length;
-            long[] sum = new long[n + 1];
-            int max = n;
+        An(int n, int k, Input input) throws IOException {
+            long[] sum = new long[n + 1]; // sum[0] = 0
+            int size = 0;
             for (int i = 1; i <= n; i++) {
-                sum[i] = sum[i - 1] + an[i - 1];
-                if (sum[i] > k) {
-                    max = i - 1;
-                    break;
+                sum[i] = sum[i - 1] + input.readInt();
+                if (sum[i] <= k) {
+                    size = i;
                 }
             }
+            if (size != n) {
+                sum = Arrays.copyOfRange(sum, 0, size + 1);
+            }
             this.sum = sum;
-            this.max = max;
         }
     }
 
     private static class Input {
 
+        final BufferedReader br;
+
         final int N, M, K;
 
-        final int[] AN, BM;
+        final An an, bm;
 
         Input(BufferedReader br) throws IOException {
-            this.N = readInt(br);
-            this.M = readInt(br);
-            this.K = readInt(br);
-            this.AN = new int[N];
-            this.BM = new int[M];
-            for (int i = 0; i < N; i++) {
-                AN[i] = readInt(br);
-            }
-            for (int i = 0; i < M; i++) {
-                BM[i] = readInt(br);
-            }
+            this.br = br;
+            this.N = readInt();
+            this.M = readInt();
+            this.K = readInt();
+            this.an = new An(N, K, this);
+            this.bm = new An(M, K, this);
         }
 
-        int readInt(BufferedReader br) throws IOException {
+        int readInt() throws IOException {
             int a = 0;
             while (true) {
                 int read = br.read();
