@@ -45,11 +45,13 @@ public class Main {
         }
 
         Counts(An an, An bm, int k) {
+            int bstart = bm.sum.length - 1;
             int[] counts = new int[an.sum.length];
             for (int i = 0; i < an.sum.length; i++) {
                 int count = 0;
-                for (int j = bm.sum.length - 1; j >= 0; j--) {
+                for (int j = bstart; j >= 0; j--) {
                     if (an.sum[i] + bm.sum[j] <= k) {
+                        bstart = j;
                         count = i + j;
                         break;
                     }
