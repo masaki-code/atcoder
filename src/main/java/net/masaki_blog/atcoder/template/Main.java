@@ -28,17 +28,16 @@ public class Main {
 
     private static class Input {
 
-        @SuppressWarnings("unused")
         final BufferedReader br;
 
         final int a;
 
         Input(BufferedReader br) throws IOException {
             this.br = br;
-            this.a = readInt(br);
+            this.a = readInt();
         }
 
-        int readInt(BufferedReader br) throws IOException {
+        int readInt() throws IOException {
             int a = 0;
             while (true) {
                 int read = br.read();
