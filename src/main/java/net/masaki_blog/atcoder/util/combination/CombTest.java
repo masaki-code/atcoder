@@ -1,4 +1,4 @@
-package net.masaki_blog.atcoder.util.comb;
+package net.masaki_blog.atcoder.util.combination;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.*;

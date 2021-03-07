@@ -1,4 +1,4 @@
-package net.masaki_blog.atcoder.util.comb;
+package net.masaki_blog.atcoder.util.combination;
 
 import java.math.BigInteger;
 
