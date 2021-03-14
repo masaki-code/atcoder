@@ -8,11 +8,22 @@ import org.junit.jupiter.api.Test;
 public class FactTest {
 
     @Test
+    void test() {
+        int max = 20;
+        long mod = 1000_000_000 + 7;
+        Fact f = new Fact(max, mod);
+        assertThat(f.get(1), is(1L));
+        assertThat(f.get(2), is(2L));
+        assertThat(f.get(3), is(6L));
+        assertThat(f.get(4), is(24L));
+        assertThat(f.get(5), is(120L));
+    }
+
+    @Test
     void testP() {
         int max = 20;
         long mod = 1000_000_000 + 7;
         Fact f = new Fact(max, mod);
-
         assertThat(f.perm(1, 0), is(1L));
         assertThat(f.perm(2, 0), is(1L));
         assertThat(f.perm(2, 1), is(2L));
@@ -26,14 +37,10 @@ public class FactTest {
         int max = 5;
         long mod = 1000_000_000 + 7;
         Fact f = new Fact(max, mod);
-
         assertThat(f.comb(1, 0), is(1L));
         assertThat(f.comb(2, 0), is(1L));
         assertThat(f.comb(2, 1), is(2L));
         assertThat(f.comb(4, 1), is(4L));
         assertThat(f.comb(4, 2), is(6L));
-
     }
-
-
 }

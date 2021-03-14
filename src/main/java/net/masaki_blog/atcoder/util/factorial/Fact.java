@@ -35,6 +35,13 @@ public class Fact {
     }
 
     /**
+     *  n!
+     */
+    public long get(int n) {
+        return fac[n];
+    }
+
+    /**
      *  nCk= n!/[k! (n-k)!]
      */
     public long comb(int n, int k) {
