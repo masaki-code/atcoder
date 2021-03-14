@@ -12,6 +12,10 @@ public class Mod {
         return mod(a + b);
     }
 
+    public long square(long a) {
+        return times(a, a);
+    }
+
     public long times(long a, long b) {
         return mod(a * b);
     }
