@@ -42,6 +42,13 @@ public class Fact {
     }
 
     /**
+     *  (n!)^-1
+     */
+    public long inverse(int n) {
+        return inv[n];
+    }
+
+    /**
      *  nCk= n!/[k! (n-k)!]
      */
     public long comb(int n, int k) {

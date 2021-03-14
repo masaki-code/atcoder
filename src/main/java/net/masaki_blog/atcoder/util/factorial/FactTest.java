@@ -17,6 +17,26 @@ public class FactTest {
         assertThat(f.get(3), is(6L));
         assertThat(f.get(4), is(24L));
         assertThat(f.get(5), is(120L));
+
+        mod = 23;
+        f = new Fact(max, mod);
+        assertThat(f.get(1), is(1L));
+        assertThat(f.get(2), is(2L));
+        assertThat(f.get(3), is(6L));
+        assertThat(f.get(4), is(1L));
+        assertThat(f.get(5), is(5L));
+    }
+
+    @Test
+    void testI() {
+        int max = 20;
+        long mod = 23;
+        Fact f = new Fact(max, mod);
+        assertThat(f.inverse(1), is(1L));
+        assertThat(f.inverse(2), is(12L));
+        assertThat(f.inverse(3), is(4L));
+        assertThat(f.inverse(4), is(1L));
+        assertThat(f.inverse(5), is(14L));
     }
 
     @Test
